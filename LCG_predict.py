@@ -15,8 +15,9 @@ def LCG(modulus,multiplier,increment,seed):
     https://en.wikipedia.org/wiki/Linear_congruential_generator
     """
     while True:
-        seed=(multiplier*seed+increment)%modulus
         yield seed
+        seed=(multiplier*seed+increment)%modulus
+
 
 def crackLCG(lcgSequence):
     """
@@ -78,25 +79,31 @@ def main():
     increment=1442695040888963407
     #seed=10
     seed=random.randint(1, modulus)
-    lcgGenerator=LCG(modulus,multiplier,increment,seed)
+    LCGGenerator=LCG(modulus,multiplier,increment,seed)
     # Get n numbers from generator
-    sequenceLenght=4
-    MakeTest=True
+    sequenceLenght=15
+    MakeTest=False
     if MakeTest:
         numberOfTests=10000
         print("Accuracy in %i tests is : %5.2f %s"% \
         (numberOfTests, \
-        testAccuracy(lcgGenerator,numberOfTests,sequenceLenght,(modulus,multiplier,increment)), \
+        testAccuracy(LCGGenerator,numberOfTests,sequenceLenght,(modulus,multiplier,increment)), \
         '%'))
     else:
         #generate sequence
-        lcgSequence=[next(lcgGenerator) for _ in range(sequenceLenght)]
-        #Computed paramters:
-        print(crackLCG(lcgSequence))
-        #set paramters
-        print((modulus,multiplier,increment))
+        LCGSequence=[next(LCGGenerator) for _ in range(sequenceLenght)]
 
+        #try to compute unknown parameters:
+        foundParameters=crackLCG(LCGSequence)
+        foundLCGGenerator=LCG(*foundParameters,LCGSequence[0])
+        move=[next(foundLCGGenerator) for _ in range(sequenceLenght)]
 
+        #compare:
+        print('=========================================================')
+        print((modulus,multiplier,increment), '\n ?= \n',foundParameters)
+        print('=========================================================')
+        for _ in range(5):
+            print(next(LCGGenerator),' ?= ',next(foundLCGGenerator))
 
 if __name__ == '__main__':
 	main()
