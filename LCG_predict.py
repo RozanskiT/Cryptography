@@ -59,13 +59,13 @@ def findIncrement(lcgSequence, modulus, multiplier):
     return (lcgSequence[1] - lcgSequence[0]*multiplier) % modulus
 
 
-def testAccuracy(lcgGenerator,numberOfTests,sequenceLenght,generatorValues):
+def testAccuracy(lcgGenerator,numberOfTests,sequenceLength,generatorValues):
     """
     Procedure tests accuracy of finding LCG paramteters
     """
     num=0
     for _ in range(numberOfTests):
-        lcgSequence=[next(lcgGenerator) for _ in range(sequenceLenght)]
+        lcgSequence=[next(lcgGenerator) for _ in range(sequenceLength)]
         num+=np.array_equal(generatorValues,crackLCG(lcgSequence))
     return num*100./numberOfTests
 
@@ -81,22 +81,22 @@ def main():
     seed=random.randint(1, modulus)
     LCGGenerator=LCG(modulus,multiplier,increment,seed)
     # Get n numbers from generator
-    sequenceLenght=15
-    MakeTest=False
+    sequenceLength=4
+    MakeTest=True
     if MakeTest:
         numberOfTests=10000
         print("Accuracy in %i tests is : %5.2f %s"% \
         (numberOfTests, \
-        testAccuracy(LCGGenerator,numberOfTests,sequenceLenght,(modulus,multiplier,increment)), \
+        testAccuracy(LCGGenerator,numberOfTests,sequenceLength,(modulus,multiplier,increment)), \
         '%'))
     else:
         #generate sequence
-        LCGSequence=[next(LCGGenerator) for _ in range(sequenceLenght)]
+        LCGSequence=[next(LCGGenerator) for _ in range(sequenceLength)]
 
         #try to compute unknown parameters:
         foundParameters=crackLCG(LCGSequence)
         foundLCGGenerator=LCG(*foundParameters,LCGSequence[0])
-        move=[next(foundLCGGenerator) for _ in range(sequenceLenght)]
+        move=[next(foundLCGGenerator) for _ in range(sequenceLength)]
 
         #compare:
         print('=========================================================')

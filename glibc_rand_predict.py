@@ -64,12 +64,12 @@ def main():
     """
     Test accuracy of predicting next number
     """
-    sequenceLenght=34
+    sequenceLength=34
     probability=0
     noTest=10000
     for i in range(noTest):
         rng=glibcPRGN(i)
-        glibcRandomSequence=[r for _,r in zip(range(sequenceLenght),rng)]
+        glibcRandomSequence=[r for _,r in zip(range(sequenceLength),rng)]
         if(getNextGlibcRandom(glibcRandomSequence)==next(rng)):
             probability+=1
     probability*=100./noTest
