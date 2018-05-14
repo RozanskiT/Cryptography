@@ -6,6 +6,7 @@ EX 3
 
 """
 import re
+import numpy as np
 
 def loadEncryptedMessage(fileName):
     ciphertexts=[]
@@ -24,6 +25,10 @@ def XOR(L1,L2):
 
 def listToString(L):
     return ''.join(chr(i) for i in L)
+
+def only_letters(tested_string):
+    match = re.match("^[qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM ,]*$", tested_string)
+    return match is not None
 
 def basic_letters(tested_string):
     match = re.match("^[qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM :\- ;,\.!\?']*$", tested_string)
@@ -66,7 +71,24 @@ def findKey(ct):
                     num+=1
                     k=i
                     potentialKeyElement.append(i)
-        key.append(potentialKeyElement)
+                else:
+                    potentialKeyElement.append(0)
+        key.append(potentialKeyElement[0])
+    return key
+
+def findKey2(ct):
+    maxL=max([len(x) for x in ct])
+    key=[]
+    for n in range(0,maxL-1):
+        k=0
+        num=0
+        goodnessOfKey=np.zeros(256)
+        for i in range(0,255):
+            for c in ct:
+                if len(c)> n:
+                    if only_letters(chr(c[n]^i)):
+                        goodnessOfKey[i]+=1
+        key.append(np.argmax(goodnessOfKey))
     return key
 
 
@@ -74,15 +96,6 @@ def main():
     ct=loadEncryptedMessage('../lab2.dat')
     ct=ct[0:-1]
     lastct=ct[-1]
-    key=findKey(ct)
-    bestAutoKey=[]
-    for s in key:
-        if not s:
-            bestAutoKey.append(0)
-        elif len(s) == 1:
-            bestAutoKey.append(s[0])
-        else:
-            bestAutoKey.append(s[0])
 
     key=[33,234,92,163,27,173,94,76,124,144,120,167,163,180,165,87,99,250,95,125,\
         235,61,48,45,192,230,8,8,221,184,67,107,122,29,117,91,212,72,123,26,10,\
@@ -94,23 +107,37 @@ def main():
         236,89,199,75,88,125,59,237,64,219,156,164,23,158,144,196,113,201,107,\
         176,167,203,23,2,112,135,32,48,227,83,136,194,160,20,52]
 
+    if True:
+        bestAutoKey=findKey2(ct)
+    else:
+        bestAutoKey=findKey(ct)
 
     if False:
-        print("LAST CT: ")
-        text=XOR(lastct,key)
-        print(listToString(text))
         for i,c in enumerate(ct):
-            print("\n\n",i, "\n")
+            print("\n\n\n",i, "\n")
             text=XOR(c,key)
             print(listToString(text))
-    else:
-        print("LAST CT: ")
-        text=XOR(lastct,bestAutoKey)
-        print(listToString(text))
+    if False:
         for i,c in enumerate(ct):
             print("\n\n",i, "\n")
             text=XOR(c,bestAutoKey)
             print(listToString(text))
+
+    if True:
+        print("\n\nLAST Cipher text: ")
+        text=XOR(lastct,key)
+        print(listToString(text))
+        print("\n\n--------------------------------------------------------------------")
+        print("KEY:")
+        print(listToString(key))
+
+    else:
+        print("\n\nLAST Cipher text: ")
+        text=XOR(lastct,bestAutoKey)
+        print(listToString(text))
+        print("\n\n--------------------------------------------------------------------")
+        print("KEY:")
+        print(listToString(bestAutoKey))
 
 if __name__ == '__main__':
 	main()
