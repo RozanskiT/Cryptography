@@ -69,6 +69,26 @@ def testAccuracy(lcgGenerator,numberOfTests,sequenceLength,generatorValues):
         num+=np.array_equal(generatorValues,crackLCG(lcgSequence))
     return num*100./numberOfTests
 
+def testDistinguisher(lcgGenerator,sequenceLength,noTests=1000):
+    num = 0.
+    bits = np.random.randint(2, size=noTests)
+    for b in bits:
+        randomSequence = None
+        if b: # use
+            randomSequence = [next(lcgGenerator) for _ in range(sequenceLength)]
+        else:
+            randomSequence = None
+        ifLCG = distinguisher(randomSequence)
+        if ifLCG == b:
+            num += 1.
+    return num/noTests * 100.
+
+
+def distinguisher(randomString):
+    ifRandom = True
+    # lcgSequence=[next(lcgGenerator) for _ in range(sequenceLength)]
+    # num+=np.array_equal(generatorValues,crackLCG(lcgSequence))
+    return ifRandom
 
 
 def main():
@@ -78,18 +98,21 @@ def main():
     multiplier=6364136223846793005
     increment=1442695040888963407
     #seed=10
-    seed=random.randint(1, modulus)
-    LCGGenerator=LCG(modulus,multiplier,increment,seed)
+    seed = random.randint(1, modulus)
+    LCGGenerator = LCG(modulus,multiplier,increment,seed)
     # Get n numbers from generator
-    sequenceLength=4
-    MakeTest=True
-    if MakeTest:
+    sequenceLength = 10
+    makeTest = True
+    if makeTest:
+        pc = testDistinguisher(LCGGenerator,sequenceLength,noTests=1000)
+        print("Distinguisher accuracy = {:.3f}".format(pc))
+    else:
         numberOfTests=10000
         print("Accuracy in %i tests is : %5.2f %s"% \
         (numberOfTests, \
         testAccuracy(LCGGenerator,numberOfTests,sequenceLength,(modulus,multiplier,increment)), \
         '%'))
-    else:
+    if False:
         #generate sequence
         LCGSequence=[next(LCGGenerator) for _ in range(sequenceLength)]
 
